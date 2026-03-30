@@ -138,8 +138,8 @@ Ensure you have the following installed:
 
 ### **Step 1: Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/farmmate.git
-cd farmmate
+git clone https://github.com/yourusername/farmlink.git
+cd farmlink
 ```
 
 ### **Step 2: Install Dependencies**

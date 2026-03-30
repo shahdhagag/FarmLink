@@ -1,4 +1,4 @@
 class ApiKey {
-  static const String weatherApiKey =
-      "Generate your API key from OpenWeather API and paste it here in these quotes.";
+  // lib/ApiKey.dart
+static const String weatherApiKey = 'af2928389688d1e0d64e480cfe766d88';
 }

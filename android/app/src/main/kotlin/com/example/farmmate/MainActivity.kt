@@ -1,4 +1,4 @@
-package com.example.farmmate
+package com.example.farmlink
 
 import io.flutter.embedding.android.FlutterActivity
 

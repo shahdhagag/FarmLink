@@ -1,6 +1,6 @@
 {
-    "name": "farmmate",
-    "short_name": "farmmate",
+    "name": "FarmLink",
+    "short_name": "FarmLink",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

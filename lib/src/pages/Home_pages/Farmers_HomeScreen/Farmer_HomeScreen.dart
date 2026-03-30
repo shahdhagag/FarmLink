@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farmmate/src/pages/Landing_pages/welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
+import 'package:flutter/services.dart';
+import '../../Landing_pages/welcome.dart';
 import 'FarmerCropDetail.dart';
+import 'Farmer_AddScreen.dart';
+import 'farmar_profileScreen.dart';
 
 class FarmerHomescreen extends StatefulWidget {
   const FarmerHomescreen({super.key});
@@ -14,305 +15,377 @@ class FarmerHomescreen extends StatefulWidget {
 }
 
 class _FarmerHomescreenState extends State<FarmerHomescreen> {
-  List<Map<String, dynamic>> crops = [];
-  bool isLoading = true;
+  final Color primaryGreen = const Color(0xFF337233);
+  final Color background = const Color(0xFFF8FAF8);
+  final User? user = FirebaseAuth.instance.currentUser;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchCrops();
-  }
-
-  Future<void> fetchCrops() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        showSnackBar("User not logged in", Colors.red);
-        setState(() => isLoading = false);
-        return;
-      }
-
-      print("Current User: ${user.email}");
-
-      var cropSnapshot = await FirebaseFirestore.instance
-          .collection("CropMain")
-          .where("FarmerUID", isEqualTo: user.uid)
-          .get();
-
-      List<Map<String, dynamic>> fetchedCrops = cropSnapshot.docs.map((doc) {
-        return {
-          'id': doc.id, // Add document ID for update & delete functions
-          'product': doc['Product'],
-          'rating': doc['CropRating'],
-          'costPerKg': doc['CostPerKg'],
-          'availability': doc['Availability'],
-          'cropType': doc['Croptype'],
-          'harvestDate': doc['HarvestDate'],
-          'expiryDate': doc['ExpiryDate'],
-          'phoneNumber': doc['PhoneNumber'],
-          'FarmerName': doc['FarmerName'],
-          'uploadDate': doc['CropUploadedDate'],
-          "PriceType": doc["PriceType"],
-          "Location": doc["Location"],
-        };
-      }).toList();
-
-      // Sorting manually in Dart (descending order)
-      fetchedCrops.sort((a, b) {
-        DateTime dateA = _parseDate(a['uploadDate']);
-        DateTime dateB = _parseDate(b['uploadDate']);
-        return dateB.compareTo(dateA);
-      });
-
-      setState(() {
-        crops = fetchedCrops;
-        isLoading = false;
-      });
-    } on FirebaseException catch (e) {
-      showSnackBar(e.message.toString(), Colors.red);
-      setState(() => isLoading = false);
+  // --- MODERN DELETE LOGIC ---
+  Future<void> _deleteCrop(String docId) async {
+    bool confirmed = await _showDeleteConfirmation();
+    if (confirmed) {
+      // No need to call setState or fetch; the StreamBuilder handles it!
+      await FirebaseFirestore.instance.collection("CropMain").doc(docId).delete();
+      HapticFeedback.lightImpact();
     }
   }
 
-  void updateCrop(String docId, Map<String, dynamic> updatedData) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection("CropMain")
-          .doc(docId)
-          .update(updatedData);
-      showSnackBar(
-        "Crop updated successfully!",
-        Color.fromRGBO(51, 114, 51, 1.0),
-      );
-      fetchCrops();
-    } catch (e) {
-      showSnackBar("Failed to update crop!", Colors.red);
-    }
-  }
-
-  Future deleteCrop(String docId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection("CropMain")
-          .doc(docId)
-          .delete();
-      showSnackBar(
-        "Crop deleted successfully!",
-        Color.fromRGBO(51, 114, 51, 1.0),
-      );
-      fetchCrops();
-    } catch (e) {
-      showSnackBar("Failed to delete crop!", Colors.red);
-    }
-  }
-
-  // Function to parse date string into DateTime
-  DateTime _parseDate(String dateString) {
-    try {
-      return DateFormat("dd-MM-yyyy").parse(dateString);
-    } catch (e) {
-      return DateTime(2000, 1, 1); // Default old date if parsing fails
-    }
-  }
-
-  void showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white)),
-        backgroundColor: color,
-      ),
-    );
-  }
-
-  void showUpdateDialog(String docId, Map<String, dynamic> crop) {
-    TextEditingController productController =
-        TextEditingController(text: crop['product']);
-    TextEditingController costController =
-        TextEditingController(text: crop['costPerKg']);
-
-    showDialog(
+  Future<bool> _showDeleteConfirmation() async {
+    return await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Update Crop"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: productController,
-              decoration: InputDecoration(labelText: "Product Name"),
-            ),
-            TextField(
-              controller: costController,
-              decoration: InputDecoration(labelText: "Cost Per Kg"),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Cancel",
-                style: TextStyle(
-                    color: Color.fromRGBO(51, 114, 51, 1.0),
-                    fontFamily: "Poppins-SemiBold"),
-              )),
-          ElevatedButton(
-            onPressed: () {
-              updateCrop(docId, {
-                'Product': productController.text,
-                'CostPerKg': costController.text,
-              });
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Update",
-              style: TextStyle(
-                  color: Colors.white, fontFamily: "Poppins-SemiBold"),
-            ),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Colors.red.shade50, shape: BoxShape.circle),
+                child: Icon(Icons.delete_sweep_rounded, color: Colors.red.shade600, size: 38),
+              ),
+              const SizedBox(height: 20),
+              const Text("Remove Listing?", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 12),
+              const Text(
+                "This crop will be permanently removed. This action cannot be undone.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, height: 1.5),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("Cancel", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade600,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text("Delete", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    );
+    ) ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: background,
       appBar: AppBar(
-        title: Text(
-          "Farmer DashBoard",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: "Poppins-SemiBold",
-            color: Color.fromRGBO(51, 114, 51, 1.0),
-          ),
-        ),
-        centerTitle: true,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              icon: Icon(Icons.person),
-              color: Color.fromRGBO(51, 114, 51, 1.0),
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await fetchCrops();
-              },
-              icon: Icon(
-                Icons.refresh,
-                color: Color.fromRGBO(51, 114, 51, 1.0),
-              ))
-        ],
-      ),
-      drawer: Drawer(
-        child: Column(
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DrawerHeader(
-                padding: EdgeInsets.all(0),
-                child: Container(
-                  color: Color.fromRGBO(51, 114, 51, 1.0),
-                  child: Center(
-                    child: Text(
-                      "Hello FarmMate",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Poppins-SemiBold',
-                          fontSize: 20),
-                    ),
-                  ),
-                )),
-            Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => welcome(),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                  child: Text(
-                    "Logout",
-                    style: TextStyle(
-                        color: Colors.white, fontFamily: 'Poppins-SemiBold'),
-                  )),
-            )
+            Text("Harvest Inventory",
+                style: TextStyle(color: primaryGreen, fontWeight: FontWeight.bold, fontSize: 22)),
+            const Text("Live Marketplace Sync",
+                style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: Icon(Icons.notes_rounded, color: primaryGreen, size: 28),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : crops.isEmpty
-              ? Center(child: Text("No crops available"))
-              : ListView.builder(
-                  itemCount: crops.length,
-                  itemBuilder: (context, index) {
-                    final crop = crops[index];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  Farmercropdetailcrop(crop: crop),
-                            ));
-                      },
-                      child: Card(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                        elevation: 5,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(10),
-                          title: Text(
-                            crop['product'],
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Rating: ${crop['rating']}"),
-                              Text("Farmer: ${crop['farmerName']}"),
-                              Text("Cost Per Kg: ${crop['costPerKg']}"),
-                              Text("Uploaded: ${crop['uploadDate']}"),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  showUpdateDialog(crop["id"], crop);
-                                },
-                                icon: Icon(
-                                  Icons.edit,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0),
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  deleteCrop(crop["id"]);
-                                },
-                                icon: Icon(Icons.delete, color: Colors.red),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+      drawer: _buildModernDrawer(),
+      body: StreamBuilder<QuerySnapshot>(
+        // This keeps a live connection to your data
+        stream: FirebaseFirestore.instance
+            .collection("CropMain")
+            .where("FarmerUID", isEqualTo: user?.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) return const Center(child: Text("Connection Error"));
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator(color: primaryGreen));
+          }
+
+          final docs = snapshot.data!.docs;
+          if (docs.isEmpty) return _buildEmptyState();
+
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+            physics: const BouncingScrollPhysics(),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              var data = docs[index].data() as Map<String, dynamic>;
+
+              // Prepare the data map for the Card and Detail Screen
+              final cropMap = {
+                'id': docs[index].id,
+                ...data,
+                'product': data['Product'],
+                'costPerKg': data['CostPerKg'],
+                'availability': data['Availability'],
+                'uploadDate': data['CropUploadedDate'],
+                'cropType': data['Croptype'],
+                'rating': data['CropRating'],
+              };
+
+              return _ModernCropCard(
+                crop: cropMap,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Farmercropdetailcrop(crop: cropMap))),
+                onEdit: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FarmerAddScreen(existingCrop: cropMap))),
+                onDelete: () => _deleteCrop(docs[index].id),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.eco_outlined, size: 100, color: primaryGreen.withOpacity(0.2)),
+          const SizedBox(height: 20),
+          const Text("No crops currently listed", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54)),
+          const SizedBox(height: 8),
+          const Text("Start selling by adding your first product", style: TextStyle(color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernDrawer() {
+    return Drawer(
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(35),
+          bottomRight: Radius.circular(35),
+        ),
+      ),
+      child: Column(
+        children: [
+          // --- CUSTOM MODERN HEADER ---
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: primaryGreen,
+              borderRadius: const BorderRadius.only(topRight: Radius.circular(35)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person_rounded, size: 45, color: Color(0xFF337233)),
                 ),
+                const SizedBox(height: 15),
+                const Text(
+                  "Welcome Back,",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                Text(
+                  user?.email?.split('@')[0].toUpperCase() ?? "FARMER",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // --- DRAWER ITEMS ---
+          _drawerTile(
+            icon: Icons.dashboard_customize_rounded,
+            title: "My Inventory",
+            onTap: () => Navigator.pop(context),
+          ),
+          _drawerTile(
+            icon: Icons.account_circle_outlined,
+            title: "Farmer Profile",
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const FarmerProfileScreen()));
+            },
+          ),
+
+
+          const Spacer(),
+
+          // --- LOGOUT SECTION ---
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: ListTile(
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  if (!mounted) return;
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const welcome()),
+                        (route) => false,
+                  );
+                },
+                leading: const Icon(Icons.logout_rounded, color: Colors.red),
+                title: const Text(
+                  "Sign Out",
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+// Helper for clean drawer tiles
+  Widget _drawerTile({required IconData icon, required String title, required VoidCallback onTap}) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      leading: Icon(icon, color: Colors.grey[700], size: 24),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: Colors.grey[800],
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+        ),
+      ),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    );
+  }
+}
+
+class _ModernCropCard extends StatelessWidget {
+  final Map<String, dynamic> crop;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _ModernCropCard({required this.crop, required this.onTap, required this.onEdit, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primaryGreen = const Color(0xFF337233);
+    final bool isOrganic = crop['cropType'] == 'Organic';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 8))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 60, width: 60,
+                      decoration: BoxDecoration(color: primaryGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(18)),
+                      child: Icon(Icons.grass_rounded, color: primaryGreen, size: 30),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(crop['product'] ?? "Unnamed", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                              const SizedBox(width: 8),
+                              _badge(isOrganic ? "ORGANIC" : "HYBRID", isOrganic ? Colors.green : Colors.blue),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text("Uploaded: ${crop['uploadDate']}", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    _actionMenu(),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                color: primaryGreen.withOpacity(0.03),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _infoBit(Icons.payments_outlined, "₹${crop['costPerKg']}/kg"),
+                    _infoBit(Icons.inventory_2_outlined, "${crop['availability']} kg"),
+                    _infoBit(Icons.star_rounded, "${crop['rating']}", color: Colors.amber),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _badge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+      child: Text(text, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _infoBit(IconData icon, String text, {Color color = Colors.grey}) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF2D3436))),
+      ],
+    );
+  }
+
+  Widget _actionMenu() {
+    return PopupMenuButton(
+      icon: const Icon(Icons.more_vert, color: Colors.grey),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      itemBuilder: (context) => [
+        PopupMenuItem(onTap: onEdit, child: const Row(children: [Icon(Icons.edit_outlined, size: 20), SizedBox(width: 8), Text("Edit")])),
+        PopupMenuItem(onTap: onDelete, child: const Row(children: [Icon(Icons.delete_outline, color: Colors.red, size: 20), SizedBox(width: 8), Text("Delete", style: TextStyle(color: Colors.red))])),
+      ],
     );
   }
 }

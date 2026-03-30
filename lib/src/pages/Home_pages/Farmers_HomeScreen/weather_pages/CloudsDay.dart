@@ -18,7 +18,7 @@ class _CloudsDayState extends State<CloudsDay> {
           cloudConfig: CloudConfig(
               color: Color.lerp(Colors.white, Colors.blue.shade100, 0.3)!),
         ),
-        WindWidget(
+        const WindWidget(
           windConfig: WindConfig(color: Colors.blueGrey),
         ),
       ],

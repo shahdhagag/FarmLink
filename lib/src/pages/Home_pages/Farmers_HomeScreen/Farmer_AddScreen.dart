@@ -6,706 +6,289 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
-class FarmerAddscreen extends StatefulWidget {
-  const FarmerAddscreen({
-    super.key,
-  });
+class FarmerAddScreen extends StatefulWidget {
+  final VoidCallback? onBackToHome;
+  final Map<String, dynamic>? existingCrop;
+
+  const FarmerAddScreen({super.key, this.onBackToHome, this.existingCrop});
 
   @override
-  State<FarmerAddscreen> createState() => _FarmerAddscreenState();
+  State<FarmerAddScreen> createState() => _FarmerAddScreenState();
 }
 
-class _FarmerAddscreenState extends State<FarmerAddscreen> {
-  final ProductController = TextEditingController();
-  final AvailabilityController = TextEditingController();
-  final CostPerKgController = TextEditingController();
-  final HarvestDateController = TextEditingController();
-  final ExpiryDateController = TextEditingController();
-  final PhoneNumberController = TextEditingController();
-
-  String Croptype = '';
-  String CropRating = "";
-  String CropUploadedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
-  String PriceType = '';
-  String Location = "";
-  final FarmerNameController = TextEditingController();
-
-  // Function to get the current location
-
-  Future<String> getCurrentLocation() async {
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return "Location services are disabled";
-    }
-
-    // Request location permission
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return "Location permission denied";
-    }
-
-    // Get the current position of the device
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high, // Set high accuracy
-        timeLimit: Duration(seconds: 10), // Add a timeout to prevent long waits
-      );
-
-      // Convert coordinates into a readable address
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark placemark = placemarks[0]; // Get the first result
-
-      // Construct a human-readable address
-      String location =
-          "${placemark.name}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
-
-      return location;
-    } catch (e) {
-      return "Error getting location: ${e.toString()}";
-    }
-  }
-
-  ///form key
+class _FarmerAddScreenState extends State<FarmerAddScreen> {
+  final Color primaryGreen = const Color.fromRGBO(51, 114, 51, 1.0);
   final GlobalKey<FormState> farmerAddGkey = GlobalKey<FormState>();
 
-  ///all the firestore crud opreations
-  Future AddTheCropDeatils() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser; // Get the current user
-      if (user == null) {
-        // Handle the case if the user is not logged in
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("User not logged in"),
-          backgroundColor: Colors.red,
-        ));
-        return;
-      }
+  // Controllers
+  final productController = TextEditingController();
+  final availabilityController = TextEditingController();
+  final costPerKgController = TextEditingController();
+  final harvestDateController = TextEditingController();
+  final expiryDateController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  final farmerNameController = TextEditingController();
 
-      await FirebaseFirestore.instance.collection("CropMain").add({
-        "Product": ProductController.text.trim(),
-        "Availability": AvailabilityController.text.trim(),
-        "CostPerKg": CostPerKgController.text.trim(),
-        "HarvestDate": HarvestDateController.text.trim(),
-        "ExpiryDate": ExpiryDateController.text.trim(),
-        "FarmerName": FarmerNameController.text.trim(),
-        "Croptype": Croptype,
-        "CropRating": CropRating,
-        "CropUploadedDate": CropUploadedDate,
-        "PriceType": PriceType,
-        "PhoneNumber": PhoneNumberController.text.trim(),
-        "Location": Location,
-        "FarmerUID": user.uid, // Store the farmer's UID
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          "Your Crop is Successfully Added",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color.fromRGBO(51, 114, 51, 1.0),
-      ));
-
-      print("crop created");
-      ProductController.clear();
-      AvailabilityController.clear();
-      CostPerKgController.clear();
-      Croptype = "";
-      CropRating = '';
-      PhoneNumberController.clear();
-      FarmerNameController.clear();
-      HarvestDateController.clear();
-      ExpiryDateController.clear();
-
-      Location = "";
-      PriceType = "";
-    } on FirebaseException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          e.message.toString(),
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color.fromRGBO(51, 114, 51, 1.0),
-      ));
-    }
-  }
-
-  Future<void> _getLocation() async {
-    String location =
-        await getCurrentLocation(); // Fetch the location asynchronously
-    setState(() {
-      Location = location; // Update the location value
-    });
-  }
+  // State
+  String cropType = 'Organic';
+  double cropRating = 0.0;
+  String priceType = 'Fixed Price';
+  String location = "Fetching location...";
+  bool isLoading = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _getLocation();
+    if (widget.existingCrop != null) {
+      _loadExistingData();
+    } else {
+      _getLocation();
+    }
+  }
+
+  void _loadExistingData() {
+    final data = widget.existingCrop!;
+    // Note: Using Capitalized keys to match your Firebase structure
+    productController.text = data['Product']?.toString() ?? "";
+    availabilityController.text = data['Availability']?.toString() ?? "";
+    costPerKgController.text = data['CostPerKg']?.toString() ?? "";
+    harvestDateController.text = data['HarvestDate']?.toString() ?? "";
+    expiryDateController.text = data['ExpiryDate']?.toString() ?? "";
+    farmerNameController.text = data['FarmerName']?.toString() ?? "";
+    phoneNumberController.text = data['PhoneNumber']?.toString() ?? "";
+
+    cropType = data['Croptype'] ?? 'Organic';
+    cropRating = double.tryParse(data['CropRating']?.toString() ?? "0.0") ?? 0.0;
+    priceType = data['PriceType'] ?? 'Fixed Price';
+    location = data['Location'] ?? "Location set";
+  }
+
+  Future<void> _getLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemarks =
+      await placemarkFromCoordinates(position.latitude, position.longitude);
+      setState(() => location =
+      "${placemarks[0].locality}, ${placemarks[0].administrativeArea}");
+    } catch (e) {
+      setState(() => location = "Location unavailable");
+    }
+  }
+
+  Future<void> handleSubmission() async {
+    if (!farmerAddGkey.currentState!.validate()) return;
+    setState(() => isLoading = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final cropData = {
+        "Product": productController.text.trim(),
+        "Availability": availabilityController.text.trim(),
+        "CostPerKg": costPerKgController.text.trim(),
+        "HarvestDate": harvestDateController.text.trim(),
+        "ExpiryDate": expiryDateController.text.trim(),
+        "FarmerName": farmerNameController.text.trim(),
+        "Croptype": cropType,
+        "CropRating": cropRating.toString(),
+        "PriceType": priceType,
+        "PhoneNumber": phoneNumberController.text.trim(),
+        "Location": location,
+        "FarmerUID": user?.uid,
+        "CropUploadedDate": widget.existingCrop?['uploadDate'] ??
+            DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      };
+
+      if (widget.existingCrop != null) {
+        await FirebaseFirestore.instance
+            .collection("CropMain")
+            .doc(widget.existingCrop!['id'])
+            .update(cropData);
+        _showSnackBar("Updated Successfully!", Colors.blue);
+      } else {
+        await FirebaseFirestore.instance.collection("CropMain").add(cropData);
+        _showSnackBar("Added Successfully!", Colors.green);
+      }
+
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context, true);
+      } else if (widget.onBackToHome != null) {
+        widget.onBackToHome!();
+      }
+    } catch (e) {
+      _showSnackBar("Error: $e", Colors.red);
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String msg, Color color) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg), backgroundColor: color));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Add Your Crop",
-            style: TextStyle(
-                color: Color.fromRGBO(51, 114, 51, 1.0),
-                fontFamily: 'Poppins-SemiBold'),
-          ),
-          automaticallyImplyLeading: false,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(widget.existingCrop == null ? "Add New Crop" : "Update Crop",
+            style: TextStyle(color: primaryGreen, fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: primaryGreen),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else if (widget.onBackToHome != null) {
+              widget.onBackToHome!();
+            }
+          },
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Form(
-                  key: farmerAddGkey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10, top: 15),
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter Farmer Name";
-                            } else {
-                              return null;
-                            }
-                          },
-                          decoration: InputDecoration(
-                            label: Text("Farmer Name"),
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Poppins-SemiBold"),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: FarmerNameController,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 10, bottom: 10),
-                            child: Text(
-                              " * Please Enter Valid Farmer Name",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10, top: 15),
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter Phone Number";
-                            } else if (!RegExp(r'^[6-9]\d{9}$')
-                                .hasMatch(value)) {
-                              return "Enter a valid phone number";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            label: Text("Phone Number"),
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Poppins-SemiBold"),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: PhoneNumberController,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 10, bottom: 10),
-                            child: Text(
-                              " * Please Enter Valid PhoneNumber",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter Product";
-                            } else {
-                              return null;
-                            }
-                          },
-                          decoration: InputDecoration(
-                            label: Text("Product"),
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Poppins-SemiBold"),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: ProductController,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10, bottom: 10),
-                        child: Text(
-                          " * Please Mention Crops Like Potatoes Or Tomatoes.",
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter Availability";
-                            } else {
-                              return null;
-                            }
-                          },
-                          decoration: InputDecoration(
-                            label: Text("Availability"),
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Poppins-SemiBold"),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: AvailabilityController,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 10, bottom: 10),
-                            child: Text(
-                              " * Please Mention Availability in Kgs.",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Enter Cost Per Kg";
-                            } else {
-                              return null;
-                            }
-                          },
-                          decoration: InputDecoration(
-                            label: Text("Cost Per Kg"),
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Poppins-SemiBold"),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: CostPerKgController,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 10, bottom: 10),
-                            child: Text(
-                              " * Expecting Cost per Kg",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 19.0, top: 10, bottom: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            _buildPriceTypeCheckBox("Fixed Price"),
-                            SizedBox(width: 15),
-                            _buildPriceTypeCheckBox("Negotiable"),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(" * Select the Price Type",
-                                style: TextStyle(color: Colors.black54)),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 19.0, top: 10, bottom: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            _buildCheckBox("Organic"),
-                            SizedBox(width: 20),
-                            _buildCheckBox("Hybrid"),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10, bottom: 10),
-                        child: Text(
-                          " *  Please Click The Checkbox To Select The Crop Variety",
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          readOnly: true,
-                          onTap: () {
-                            HarvestDatePicker();
-                          },
-                          decoration: InputDecoration(
-                            label: Text(
-                              "Harvest Date",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "Poppins-SemiBold"),
-                            ),
-                            prefixIcon: Icon(Icons.date_range),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: HarvestDateController,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          readOnly: true,
-                          onTap: () {
-                            ExpiryDatePicker();
-                          },
-                          decoration: InputDecoration(
-                            label: Text(
-                              "Expiry Date",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "Poppins-SemiBold"),
-                            ),
-                            prefixIcon: Icon(Icons.date_range),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                  width: 1,
-                                  color: Color.fromRGBO(51, 114, 51, 1.0)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(width: 1, color: Colors.red),
-                            ),
-                          ),
-                          controller: ExpiryDateController,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0, top: 10),
-                        child: RatingBar(
-                          filledColor: Color.fromRGBO(51, 114, 51, 1.0),
-                          size: 40,
-                          filledIcon: Icons.star,
-                          emptyIcon: Icons.star_border,
-                          onRatingChanged: (p0) {
-                            CropRating = p0.toString();
-                          },
-                          initialRating: 0,
-                          maxRating: 5,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              " * Rate your crop from 1 to 5.",
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 25.0),
-                        child: SizedBox(
-                            width: 300,
-                            child: ElevatedButton(
-                                onPressed: () async {
-                                  if (farmerAddGkey.currentState!.validate()) {
-                                    await AddTheCropDeatils();
-                                  }
-                                },
-                                child: Text(
-                                  "Submit My Crop",
-                                  style: TextStyle(color: Colors.white),
-                                ))),
-                      ),
-                      SizedBox(
-                        height: 25,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                      )
-                    ],
-                  ))
-            ],
-          ),
-        ));
-  }
-
-  Widget _buildCheckBox(String label) {
-    bool isSelected = Croptype == label;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          Croptype = label;
-        });
-        print(Croptype);
-        print(CropRating);
-      },
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 2),
-              color: isSelected ? Colors.green : Colors.transparent,
+      ),
+      body: SafeArea(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator(color: primaryGreen))
+            : SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Form(
+            key: farmerAddGkey,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                _buildFieldCard("Farmer Info", [
+                  _inputField(farmerNameController, "Farmer Name", Icons.person),
+                  const SizedBox(height: 15),
+                  _inputField(phoneNumberController, "Phone", Icons.phone,
+                      keyboard: TextInputType.phone),
+                ]),
+                const SizedBox(height: 20),
+                _buildFieldCard("Product Details", [
+                  _inputField(productController, "Product Name", Icons.grass),
+                  const SizedBox(height: 15),
+                  Row(children: [
+                    Expanded(
+                        child: _inputField(
+                            availabilityController, "Qty (Kg)", Icons.scale,
+                            keyboard: TextInputType.number)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: _inputField(
+                            costPerKgController, "Price/Kg", Icons.payments,
+                            keyboard: TextInputType.number)),
+                  ]),
+                  const SizedBox(height: 15),
+                  _buildToggleRow(),
+                ]),
+                const SizedBox(height: 20),
+                _buildFieldCard("Dates & Rating", [
+                  Row(children: [
+                    Expanded(child: _dateField(harvestDateController, "Harvest")),
+                    const SizedBox(width: 10),
+                    Expanded(child: _dateField(expiryDateController, "Expiry")),
+                  ]),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: RatingBar(
+                      initialRating: cropRating,
+                      filledIcon: Icons.star,
+                      emptyIcon: Icons.star_border,
+                      onRatingChanged: (v) => cropRating = v,
+                      filledColor: Colors.amber,
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryGreen,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15))),
+                    onPressed: handleSubmission,
+                    child: Text(
+                        widget.existingCrop == null
+                            ? "LIST CROP"
+                            : "UPDATE LISTING",
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                // This extra space ensures the button isn't hidden by the Bottom Nav Bar
+               // const SizedBox(height: 50),
+              ],
             ),
-            child: isSelected
-                ? Icon(Icons.check, color: Colors.white, size: 18)
-                : null,
           ),
-          SizedBox(width: 8),
-          Text(label, style: TextStyle(fontSize: 18)),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildPriceTypeCheckBox(String label) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          PriceType = label;
-        });
+  Widget _buildFieldCard(String title, List<Widget> children) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title,
+          style: TextStyle(color: primaryGreen, fontWeight: FontWeight.bold)),
+      const SizedBox(height: 10),
+      Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.grey[200]!)),
+        child: Column(children: children),
+      )
+    ]);
+  }
+
+  Widget _inputField(TextEditingController controller, String label, IconData icon,
+      {TextInputType keyboard = TextInputType.text}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboard,
+      validator: (v) => v!.isEmpty ? "Required" : null,
+      decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: primaryGreen),
+          border:
+          OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+    );
+  }
+
+  Widget _dateField(TextEditingController controller, String label) {
+    return TextFormField(
+      controller: controller,
+      readOnly: true,
+      onTap: () async {
+        DateTime? p = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2024),
+            lastDate: DateTime(2030));
+        if (p != null) controller.text = DateFormat('dd-MM-yyyy').format(p);
       },
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 2),
-              color: PriceType == label ? Colors.green : Colors.transparent,
-            ),
-            child: PriceType == label
-                ? Icon(Icons.check, color: Colors.white, size: 18)
-                : null,
-          ),
-          SizedBox(width: 8),
-          Text(label, style: TextStyle(fontSize: 18)),
-        ],
-      ),
+      decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: const Icon(Icons.calendar_month),
+          border:
+          OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
     );
   }
 
-  Future HarvestDatePicker() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2026),
-      initialDate: DateTime.now(),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        // Formatting the picked date into a readable format
-        HarvestDateController.text =
-            "${pickedDate.day.toString().padLeft(2, '0')}/"
-            "${pickedDate.month.toString().padLeft(2, '0')}/"
-            "${pickedDate.year}";
-      });
-    } else {
-      HarvestDateController.text = "Farmer Not Mentioned";
-    }
-  }
-
-  Future ExpiryDatePicker() async {
-    DateTime? expiryDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2026),
-      initialDate: DateTime.now(),
-    );
-
-    if (expiryDate != null) {
-      setState(() {
-        // Formatting the picked date into a readable format
-        ExpiryDateController.text =
-            "${expiryDate.day.toString().padLeft(2, '0')}/"
-            "${expiryDate.month.toString().padLeft(2, '0')}/"
-            "${expiryDate.year}";
-      });
-    } else {
-      ExpiryDateController.text = "Farmer Not Mentioned";
-    }
+  Widget _buildToggleRow() {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      ChoiceChip(
+          label: const Text("Organic"),
+          selected: cropType == "Organic",
+          onSelected: (s) => setState(() => cropType = "Organic")),
+      ChoiceChip(
+          label: const Text("Hybrid"),
+          selected: cropType == "Hybrid",
+          onSelected: (s) => setState(() => cropType = "Hybrid")),
+    ]);
   }
 }
