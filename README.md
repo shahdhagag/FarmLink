@@ -30,24 +30,32 @@
 
 #### 🔐 Authentication
 
-![Login](assets/screenshots/login_farmar.png)
-![Signup](assets/screenshots/signupFarmar.png)
+<p align="center">
+  <img src="assets/screenshots/login_farmar.png" width="45%" />
+  <img src="assets/screenshots/signupFarmar.png" width="45%" />
+</p>
 
 #### 🏠 Home & Add Crop
 
-![Home](assets/screenshots/farmer_home_tab.png)
-![Add Crop 1](assets/screenshots/farmer_add_crop.png1)
-![Add Crop 2](assets/screenshots/farmer_add_crop.png2)
+<p align="center">
+  <img src="assets/screenshots/farmer_home_tab.png" width="45%" />
+  <img src="assets/screenshots/farmer_add_crop.png1" width="45%" />
+  <img src="assets/screenshots/farmer_add_crop.png2" width="45%" />
+</p>
 
 #### 📦 Orders & Chat
 
-![Orders](assets/screenshots/farmer_orders_list.png)
-![Chat](assets/screenshots/farmer_chat_list.png)
+<p align="center">
+  <img src="assets/screenshots/farmer_orders_list.png" width="45%" />
+  <img src="assets/screenshots/farmer_chat_list.png" width="45%" />
+</p>
 
 #### 🌦️ Weather
 
-![Weather 1](assets/screenshots/farmer_weather_tab1.png)
-![Weather 2](assets/screenshots/farmer_weather_tab2.png)
+<p align="center">
+  <img src="assets/screenshots/farmer_weather_tab1.png" width="45%" />
+  <img src="assets/screenshots/farmer_weather_tab2.png" width="45%" />
+</p>
 
 ---
 
@@ -55,32 +63,43 @@
 
 #### 🔐 Authentication
 
-![Login](assets/screenshots/buyerlogin.png)
-![Signup](assets/screenshots/buyer_signup.png)
+<p align="center">
+  <img src="assets/screenshots/buyerlogin.png" width="45%" />
+  <img src="assets/screenshots/buyer_signup.png" width="45%" />
+</p>
 
 #### 🏪 Marketplace & Details
 
-![Home](assets/screenshots/buyerHomeScreen.png)
-![Details 1](assets/screenshots/buyerCropDetails.png)
-![Details 2](assets/screenshots/buyerCROPdetailes2.png)
+<p align="center">
+  <img src="assets/screenshots/buyerHomeScreen.png" width="45%" />
+  <img src="assets/screenshots/buyerCropDetails.png" width="45%" />
+  <img src="assets/screenshots/buyerCROPdetailes2.png" width="45%" />
+</p>
 
 #### 🧾 Orders & Chat
 
-![Orders](assets/screenshots/buyerOrderScreen.png)
-![Chat](assets/screenshots/buyerChatScreen.png)
+<p align="center">
+  <img src="assets/screenshots/buyerOrderScreen.png" width="45%" />
+  <img src="assets/screenshots/buyerChatScreen.png" width="45%" />
+</p>
 
 #### 👤 Profile
 
-![Profile](assets/screenshots/buyerProfileScreen.png)
+<p align="center">
+  <img src="assets/screenshots/buyerProfileScreen.png" width="45%" />
+</p>
 
 ---
 
-### 🌍 General Screens
+### 🌍 General
 
-![Welcome](assets/screenshots/welcome.png)
-![Forgot Password](assets/screenshots/forgotPassword.png)
+<p align="center">
+  <img src="assets/screenshots/welcome.png" width="45%" />
+  <img src="assets/screenshots/forgotPassword.png" width="45%" />
+</p>
 
 ---
+
 
 ## 🛠️ Technologies Used
 
@@ -119,43 +138,6 @@ The project follows a modular **Clean Architecture** pattern to ensure scalabili
   * **Providers:** Riverpod state providers.
   * **Widgets:** Reusable UI components (Buttons, TextFields, Cards).
 
----
-
-## 📥 Getting Started
-
-### Prerequisites
-
-* Flutter SDK (v3.x)
-* Firebase Account
-* OpenWeather API Key
-
-### Installation
-
-```bash
-git clone https://github.com/yourusername/FarmMate.git
-flutter pub get
-```
-
-### Setup Firebase
-
-* Create a project on Firebase Console
-* Add Android/iOS apps
-* Download `google-services.json` or `GoogleService-Info.plist`
-* Enable Firestore, Auth, and Storage
-
-### Configure API Keys
-
-Update:
-
-```dart
-lib/ApiKey.dart
-```
-
-### Run the App
-
-```bash
-flutter run
-```
 
 ---
 
