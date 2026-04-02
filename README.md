@@ -31,30 +31,30 @@
 #### 🔐 Authentication
 
 <p align="center">
-  <img src="assets/screenshots/login_farmar.png" width="45%" />
-  <img src="assets/screenshots/signupFarmar.png" width="45%" />
+  <img src="assets/screenshots/login_farmar.png" width="22%" />
+  <img src="assets/screenshots/signupFarmar.png" width="22%" />
 </p>
 
 #### 🏠 Home & Add Crop
 
 <p align="center">
-  <img src="assets/screenshots/farmer_home_tab.png" width="45%" />
-  <img src="assets/screenshots/farmer_add_crop.png1" width="45%" />
-  <img src="assets/screenshots/farmer_add_crop.png2" width="45%" />
+  <img src="assets/screenshots/farmer_home_tab.png" width="22%" />
+  <img src="assets/screenshots/farmer_add_crop.png1" width="22%" />
+  <img src="assets/screenshots/farmer_add_crop.png2" width="22%" />
 </p>
 
 #### 📦 Orders & Chat
 
 <p align="center">
-  <img src="assets/screenshots/farmer_orders_list.png" width="45%" />
-  <img src="assets/screenshots/farmer_chat_list.png" width="45%" />
+  <img src="assets/screenshots/farmer_orders_list.png" width="22%" />
+  <img src="assets/screenshots/farmer_chat_list.png" width="22%" />
 </p>
 
 #### 🌦️ Weather
 
 <p align="center">
-  <img src="assets/screenshots/farmer_weather_tab1.png" width="45%" />
-  <img src="assets/screenshots/farmer_weather_tab2.png" width="45%" />
+  <img src="assets/screenshots/farmer_weather_tab1.png" width="22%" />
+  <img src="assets/screenshots/farmer_weather_tab2.png" width="22%" />
 </p>
 
 ---
@@ -64,29 +64,29 @@
 #### 🔐 Authentication
 
 <p align="center">
-  <img src="assets/screenshots/buyerlogin.png" width="45%" />
-  <img src="assets/screenshots/buyer_signup.png" width="45%" />
+  <img src="assets/screenshots/buyerlogin.png" width="22%" />
+  <img src="assets/screenshots/buyer_signup.png" width="22%" />
 </p>
 
 #### 🏪 Marketplace & Details
 
 <p align="center">
-  <img src="assets/screenshots/buyerHomeScreen.png" width="45%" />
-  <img src="assets/screenshots/buyerCropDetails.png" width="45%" />
-  <img src="assets/screenshots/buyerCROPdetailes2.png" width="45%" />
+  <img src="assets/screenshots/buyerHomeScreen.png" width="22%" />
+  <img src="assets/screenshots/buyerCropDetails.png" width="22%" />
+  <img src="assets/screenshots/buyerCROPdetailes2.png" width="22%" />
 </p>
 
 #### 🧾 Orders & Chat
 
 <p align="center">
-  <img src="assets/screenshots/buyerOrderScreen.png" width="45%" />
-  <img src="assets/screenshots/buyerChatScreen.png" width="45%" />
+  <img src="assets/screenshots/buyerOrderScreen.png" width="22%" />
+  <img src="assets/screenshots/buyerChatScreen.png" width="22%" />
 </p>
 
 #### 👤 Profile
 
 <p align="center">
-  <img src="assets/screenshots/buyerProfileScreen.png" width="45%" />
+  <img src="assets/screenshots/buyerProfileScreen.png" width="22%" />
 </p>
 
 ---
@@ -94,11 +94,12 @@
 ### 🌍 General
 
 <p align="center">
-  <img src="assets/screenshots/welcome.png" width="45%" />
-  <img src="assets/screenshots/forgotPassword.png" width="45%" />
+  <img src="assets/screenshots/welcome.png" width="22%" />
+  <img src="assets/screenshots/forgotPassword.png" width="22%" />
 </p>
 
 ---
+
 
 
 ## 🛠️ Technologies Used
