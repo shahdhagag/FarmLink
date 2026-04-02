@@ -1,74 +1,6 @@
-# 🌱 FarmMate (FarmLink)
+# FarmMate 🌱
 
-**FarmMate** is a modern, direct-to-consumer agricultural marketplace that connects farmers directly with buyers — eliminating intermediaries and empowering both sides with transparency, communication, and efficiency.
-
----
-
-## 📸 UI Showcase
-
-### 🚜 Farmer Experience
-
-#### 🔐 Authentication
-
-| Login                                    | Sign Up                                  |
-| ---------------------------------------- | ---------------------------------------- |
-| ![](assets/screenshots/login_farmar.png) | ![](assets/screenshots/signupFarmar.png) |
-
-#### 🏠 Dashboard & Crops
-
-| Home                                        | Add Crop                                     |
-| ------------------------------------------- | -------------------------------------------- |
-| ![](assets/screenshots/farmer_home_tab.png) | ![](assets/screenshots/farmer_add_crop.png1) |
-|                                             | ![](assets/screenshots/farmer_add_crop.png2) |
-
-#### 📦 Orders & Chat
-
-| Orders                                         | Chat                                         |
-| ---------------------------------------------- | -------------------------------------------- |
-| ![](assets/screenshots/farmer_orders_list.png) | ![](assets/screenshots/farmer_chat_list.png) |
-
-#### 🌦️ Weather Insights
-
-| Weather 1                                       | Weather 2                                       |
-| ----------------------------------------------- | ----------------------------------------------- |
-| ![](assets/screenshots/farmer_weather_tab1.png) | ![](assets/screenshots/farmer_weather_tab2.png) |
-
----
-
-### 🛒 Buyer Experience
-
-#### 🔐 Authentication
-
-| Login                                  | Sign Up                                  |
-| -------------------------------------- | ---------------------------------------- |
-| ![](assets/screenshots/buyerlogin.png) | ![](assets/screenshots/buyer_signup.png) |
-
-#### 🏪 Marketplace
-
-| Home                                        | Crop Details                                   |
-| ------------------------------------------- | ---------------------------------------------- |
-| ![](assets/screenshots/buyerHomeScreen.png) | ![](assets/screenshots/buyerCropDetails.png)   |
-|                                             | ![](assets/screenshots/buyerCROPdetailes2.png) |
-
-#### 🧾 Orders & Chat
-
-| Orders                                       | Chat                                        |
-| -------------------------------------------- | ------------------------------------------- |
-| ![](assets/screenshots/buyerOrderScreen.png) | ![](assets/screenshots/buyerChatScreen.png) |
-
-#### 👤 Profile
-
-| Profile                                        |
-| ---------------------------------------------- |
-| ![](assets/screenshots/buyerProfileScreen.png) |
-
----
-
-### 🌍 General Screens
-
-| Welcome                             | Forgot Password                            |
-| ----------------------------------- | ------------------------------------------ |
-| ![](assets/screenshots/welcome.png) | ![](assets/screenshots/forgotPassword.png) |
+**FarmMate** (also known as FarmLink) is a modern, direct-to-consumer agricultural marketplace designed to bridge the gap between farmers and buyers. It empowers farmers to list their fresh produce directly and allows buyers to purchase high-quality crops without intermediaries.
 
 ---
 
@@ -76,54 +8,116 @@
 
 ### For Farmers 🚜
 
-* 🌾 Crop Management with images, certification, and details
-* 📦 Real-time order tracking
-* 🌦️ Weather insights (Temp, Humidity, Wind)
-* 📍 GPS-based farm location
-* 💬 Direct chat with buyers
+* **Crop Management:** Effortlessly list crops with detailed specifications including organic/hybrid certification, harvest dates, and high-quality images.
+* **Real-time Order Management:** Track and respond to pending orders from buyers.
+* **Localized Weather Forecast:** Integrated weather tab providing real-time conditions (Temp, Humidity, Wind) to help plan farm activities.
+* **GPS Location Integration:** Automatically capture farm coordinates for accurate delivery and mapping.
+* **Direct Communication:** Built-in chat system to negotiate and discuss details with potential buyers.
 
 ### For Buyers 🛒
 
-* 🔍 Smart crop search & filtering
-* 📊 Detailed product insights
-* 🛍️ Seamless ordering system
-* 🗺️ Farm location mapping
-* 💬 Instant chat with farmers
+* **Smart Discovery:** Search and filter crops by category, location, or name.
+* **Detailed Product Insights:** View crop descriptions, "About the Produce" sections, and certified organic status.
+* **Seamless Ordering:** Place orders with custom quantities and notes for the farmer.
+* **Farm Mapping:** One-tap navigation to view the exact location of the farm on Google Maps.
+* **Instant Messaging:** Secure chat interface to communicate directly with producers.
+
+---
+
+## 📸 UI Preview
+
+### 🚜 Farmer Side
+
+#### 🔐 Authentication
+
+![Login](assets/screenshots/login_farmar.png)
+![Signup](assets/screenshots/signupFarmar.png)
+
+#### 🏠 Home & Add Crop
+
+![Home](assets/screenshots/farmer_home_tab.png)
+![Add Crop 1](assets/screenshots/farmer_add_crop.png1)
+![Add Crop 2](assets/screenshots/farmer_add_crop.png2)
+
+#### 📦 Orders & Chat
+
+![Orders](assets/screenshots/farmer_orders_list.png)
+![Chat](assets/screenshots/farmer_chat_list.png)
+
+#### 🌦️ Weather
+
+![Weather 1](assets/screenshots/farmer_weather_tab1.png)
+![Weather 2](assets/screenshots/farmer_weather_tab2.png)
+
+---
+
+### 🛒 Buyer Side
+
+#### 🔐 Authentication
+
+![Login](assets/screenshots/buyerlogin.png)
+![Signup](assets/screenshots/buyer_signup.png)
+
+#### 🏪 Marketplace & Details
+
+![Home](assets/screenshots/buyerHomeScreen.png)
+![Details 1](assets/screenshots/buyerCropDetails.png)
+![Details 2](assets/screenshots/buyerCROPdetailes2.png)
+
+#### 🧾 Orders & Chat
+
+![Orders](assets/screenshots/buyerOrderScreen.png)
+![Chat](assets/screenshots/buyerChatScreen.png)
+
+#### 👤 Profile
+
+![Profile](assets/screenshots/buyerProfileScreen.png)
+
+---
+
+### 🌍 General Screens
+
+![Welcome](assets/screenshots/welcome.png)
+![Forgot Password](assets/screenshots/forgotPassword.png)
 
 ---
 
 ## 🛠️ Technologies Used
 
-### 📱 Frontend
+### **Frontend & Framework**
 
-* Flutter
-* Riverpod
-* GoRouter
-* Flutter Animate
-* ScreenUtil
+* **Flutter:** Multi-platform UI framework.
+* **Riverpod:** Robust reactive state management.
+* **GoRouter:** Declarative routing and navigation.
+* **Flutter Animate:** For smooth, modern UI transitions.
+* **ScreenUtil:** Responsive UI design across different device sizes.
 
-### ☁️ Backend
+### **Backend & Infrastructure**
 
-* Firebase Authentication
-* Cloud Firestore
-* Firebase Storage
+* **Firebase Authentication:** Secure user sign-in and identity management.
+* **Cloud Firestore:** Real-time NoSQL database for crops, orders, and chats.
+* **Firebase Storage:** Scalable storage for produce images.
 
-### 🔗 APIs & Services
+### **APIs & Services**
 
-* OpenWeather API
-* Geolocator & Geocoding
-* URL Launcher
+* **OpenWeather API:** Real-time weather data integration.
+* **Geolocator & Geocoding:** GPS services for farm location and address conversion.
+* **URL Launcher:** Integration with system maps and phone dialer.
 
 ---
 
 ## 🏗️ Architecture
 
-Built with **Clean Architecture**:
+The project follows a modular **Clean Architecture** pattern to ensure scalability and maintainability:
 
-* **Core:** Themes, constants, utilities
-* **Domain:** Business logic (User, Crop, Order, Message)
-* **Data:** Firestore & services
-* **Presentation:** UI (Screens, Providers, Widgets)
+* **Core:** Global themes, constants, and utilities.
+* **Domain:** Pure business logic and entities (User, Crop, Order, Message).
+* **Data:** Implementation of repositories and external services (Firestore, Location).
+* **Presentation:**
+
+  * **Screens:** UI layers for Farmer and Buyer flows.
+  * **Providers:** Riverpod state providers.
+  * **Widgets:** Reusable UI components (Buttons, TextFields, Cards).
 
 ---
 
@@ -139,25 +133,17 @@ Built with **Clean Architecture**:
 
 ```bash
 git clone https://github.com/yourusername/FarmMate.git
-cd FarmMate
 flutter pub get
 ```
 
-### Firebase Setup
+### Setup Firebase
 
-1. Create project in Firebase Console
-2. Add Android/iOS app
-3. Download:
+* Create a project on Firebase Console
+* Add Android/iOS apps
+* Download `google-services.json` or `GoogleService-Info.plist`
+* Enable Firestore, Auth, and Storage
 
-   * `google-services.json`
-   * `GoogleService-Info.plist`
-4. Enable:
-
-   * Authentication
-   * Firestore
-   * Storage
-
-### API Setup
+### Configure API Keys
 
 Update:
 
@@ -165,7 +151,7 @@ Update:
 lib/ApiKey.dart
 ```
 
-### Run App
+### Run the App
 
 ```bash
 flutter run
@@ -179,8 +165,4 @@ https://drive.google.com/file/d/14hNO3rjDGU7xC1DDiB5gmI3jOX9joaeg/view?usp=shari
 
 ---
 
-## ❤️ Built With Purpose
-
-Developed to empower farmers, simplify trade, and modernize agriculture.
-
----
+*Developed with ❤️ for the Agricultural Community.*
