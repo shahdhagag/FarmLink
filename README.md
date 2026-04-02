@@ -31,31 +31,34 @@
 #### 🔐 Authentication
 
 <p align="center">
+  <img src="assets/screenshots/welcome.png" width="22%" />
   <img src="assets/screenshots/login_farmar.png" width="22%" />
   <img src="assets/screenshots/signupFarmar.png" width="22%" />
+  <img src="assets/screenshots/forgotPassword.png" width="22%" />
+
 </p>
 
 #### 🏠 Home & Add Crop
 
 <p align="center">
   <img src="assets/screenshots/farmer_home_tab.png" width="22%" />
-  <img src="assets/screenshots/farmer_add_crop.png1" width="22%" />
-  <img src="assets/screenshots/farmer_add_crop.png2" width="22%" />
+ <img src="assets/screenshots/farmer_add_crop.png1" width="22%" />
+ <img src="assets/screenshots/farmer_add_crop.png2" width="22%" />
+    <img src="assets/screenshots/farmer_orders_list.png" width="22%" />
+
 </p>
 
 #### 📦 Orders & Chat
 
 <p align="center">
-  <img src="assets/screenshots/farmer_orders_list.png" width="22%" />
   <img src="assets/screenshots/farmer_chat_list.png" width="22%" />
+  <img src="assets/screenshots/farmer_weather_tab1.png" width="22%" />
+  <img src="assets/screenshots/farmer_weather_tab2.png" width="22%" />
 </p>
 
 #### 🌦️ Weather
 
-<p align="center">
-  <img src="assets/screenshots/farmer_weather_tab1.png" width="22%" />
-  <img src="assets/screenshots/farmer_weather_tab2.png" width="22%" />
-</p>
+
 
 ---
 
@@ -90,17 +93,6 @@
 </p>
 
 ---
-
-### 🌍 General
-
-<p align="center">
-  <img src="assets/screenshots/welcome.png" width="22%" />
-  <img src="assets/screenshots/forgotPassword.png" width="22%" />
-</p>
-
----
-
-
 
 ## 🛠️ Technologies Used
 
