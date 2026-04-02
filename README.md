@@ -2,6 +2,20 @@
 
 **FarmMate** (also known as FarmLink) is a modern, direct-to-consumer agricultural marketplace designed to bridge the gap between farmers and buyers. It empowers farmers to list their fresh produce directly and allows buyers to purchase high-quality crops without intermediaries.
 
+## 📸 UI Showcase
+
+### **Farmer Dashboard & Features**
+| Home & Crops | Weather & Stats | Orders & Profile |
+| :---: | :---: | :---: |
+| ![Home](assets/screenshots/farmer_home_tab.png) | ![Weather](assets/screenshots/farmer_weather_tab.png) | ![Orders](assets/screenshots/farmer_orders_list.png) |
+
+### **Buyer Experience**
+| Market Search | Produce Details | Secure Chat |
+| :---: | :---: | :---: |
+| ![Market](assets/screenshots/buyerHomeScreen.png) | ![Details](assets/screenshots/buyerCropDetails.png) | ![Chat](assets/screenshots/farmer_chat_list.png) |
+
+---
+
 ## 🚀 Features
 
 ### For Farmers 🚜
@@ -81,13 +95,6 @@ The project follows a modular **Clean Architecture** pattern to ensure scalabili
    ```bash
    flutter run
    ```
-
----
-
-## 📸 UI Preview
-- **Modern Glassmorphism:** Used in the Weather Tab for a premium feel.
-- **Animated Interactions:** Smooth fade-ins and slide transitions throughout the app.
-- **Accessibility:** High-contrast text and intuitive iconography for ease of use by all users.
 
 ---
 *Developed with ❤️ for the Agricultural Community.*
