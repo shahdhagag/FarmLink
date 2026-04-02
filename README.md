@@ -1,6 +1,6 @@
-# FarmMate 🌱
+# FarmLink 🌱
 
-**FarmMate** (also known as FarmLink) is a modern, direct-to-consumer agricultural marketplace designed to bridge the gap between farmers and buyers. It empowers farmers to list their fresh produce directly and allows buyers to purchase high-quality crops without intermediaries.
+**FarmLink** (also known as FarmMate ) is a modern, direct-to-consumer agricultural marketplace designed to bridge the gap between farmers and buyers. It empowers farmers to list their fresh produce directly and allows buyers to purchase high-quality crops without intermediaries.
 
 ---
 
@@ -38,25 +38,23 @@
 
 </p>
 
-#### 🏠 Home & Add Crop
+#### 🏠 Home & Add Crop & Orders
 
 <p align="center">
   <img src="assets/screenshots/farmer_home_tab.png" width="22%" />
  <img src="assets/screenshots/farmer_add_crop.png1" width="22%" />
- <img src="assets/screenshots/farmer_add_crop.png2" width="22%" />
-    <img src="assets/screenshots/farmer_orders_list.png" width="22%" />
+ <img src="assets/screenshots/farmer_add_crop1.png" width="22%" />
+<img src="assets/screenshots/farmer_add_crop2.png" width="22%" />/>
 
 </p>
 
-#### 📦 Orders & Chat
+#### 🌦️ Chat & Weather
 
 <p align="center">
   <img src="assets/screenshots/farmer_chat_list.png" width="22%" />
   <img src="assets/screenshots/farmer_weather_tab1.png" width="22%" />
   <img src="assets/screenshots/farmer_weather_tab2.png" width="22%" />
 </p>
-
-#### 🌦️ Weather
 
 
 
@@ -71,26 +69,23 @@
   <img src="assets/screenshots/buyer_signup.png" width="22%" />
 </p>
 
-#### 🏪 Marketplace & Details
+#### 🏪 Marketplace & Details & Orders
 
 <p align="center">
   <img src="assets/screenshots/buyerHomeScreen.png" width="22%" />
   <img src="assets/screenshots/buyerCropDetails.png" width="22%" />
   <img src="assets/screenshots/buyerCROPdetailes2.png" width="22%" />
-</p>
-
-#### 🧾 Orders & Chat
-
-<p align="center">
   <img src="assets/screenshots/buyerOrderScreen.png" width="22%" />
-  <img src="assets/screenshots/buyerChatScreen.png" width="22%" />
+
 </p>
 
-#### 👤 Profile
+#### 🧾 Profile & Chat
 
 <p align="center">
+  <img src="assets/screenshots/buyerChatScreen.png" width="22%" />
   <img src="assets/screenshots/buyerProfileScreen.png" width="22%" />
 </p>
+
 
 ---
 
